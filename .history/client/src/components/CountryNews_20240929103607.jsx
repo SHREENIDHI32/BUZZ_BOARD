@@ -7,37 +7,45 @@ function CountryNews() {
   const params = useParams();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
-  const [totalResults, setTotalResults] = useState(0); // Set to 0 initially
+  const [totalResults, setTotalResults] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  function handlePrev() {
+    setPage(page - 1);
+  }
+
+  function handleNext() {
+    setPage(page + 1);
+  }
 
   const pageSize = 6;
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`https://news-aggregator-dusky.vercel.app/country/${params.iso}?page=${page}&pageSize=${pageSize}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+    setIsLoading(true);
+    setError(null);
+    fetch(`https://news-aggregator-dusky.vercel.app/country/${params.iso}?page=${page}&pageSize=${pageSize}`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
         }
-        const myJson = await response.json();
+        throw new Error('Network response was not ok');
+      })
+      .then((myJson) => {
         if (myJson.success) {
           setTotalResults(myJson.data.totalResults);
           setData(myJson.data.articles);
         } else {
           setError(myJson.message || 'An error occurred');
         }
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error('Fetch error:', error);
         setError('Failed to fetch news. Please try again later.');
-      } finally {
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      });
   }, [page, params.iso]);
 
   return (
@@ -46,9 +54,9 @@ function CountryNews() {
       <div className="my-10 cards grid lg:place-content-center md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 xs:grid-cols-1 xs:gap-4 md:gap-10 lg:gap-14 md:px-16 xs:p-3">
         {!isLoading ? (
           data.length > 0 ? (
-            data.map((element) => (
+            data.map((element, index) => (
               <EverythingCard
-                key={element.id} // Use a unique identifier
+                key={index}
                 title={element.title}
                 description={element.description}
                 imgUrl={element.urlToImage}
@@ -70,7 +78,7 @@ function CountryNews() {
           <button
             disabled={page <= 1}
             className="pagination-btn"
-            onClick={() => setPage(page - 1)}
+            onClick={handlePrev}
           >
             Prev
           </button>
@@ -80,7 +88,7 @@ function CountryNews() {
           <button
             disabled={page >= Math.ceil(totalResults / pageSize)}
             className="pagination-btn"
-            onClick={() => setPage(page + 1)}
+            onClick={handleNext}
           >
             Next
           </button>

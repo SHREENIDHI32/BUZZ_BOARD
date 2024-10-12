@@ -7,3 +7,8 @@ export default defineConfig({
   // server : {host : true}
 })
 
+export default {
+  server: {
+    port: 3000 // or any port you want
+  }
+};

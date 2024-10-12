@@ -5,7 +5,7 @@ const cors = require("cors");
 const { HfInference } = require('@huggingface/inference');
 
 const app = express();
-const newsApiKey = process.env.NEWS_API_KEY; // Assuming you have stored it in .env
+const apiKey = process.env.e37d173ae68e488892f68c1bd2d954e8;
 const hf = new HfInference(process.env.HUGGING_FACE_API_KEY);
 
 // CORS configuration
